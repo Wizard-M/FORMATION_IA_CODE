@@ -1,9 +1,11 @@
 import { Icon } from './Icons';
-import type { Tab } from '../App';
+import type { AppTheme, Tab } from '../App';
 
 interface HeaderProps {
   tab: Tab;
   onTab: (tab: Tab) => void;
+  theme: AppTheme;
+  onThemeChange: (theme: AppTheme) => void;
   conflictCount: number;
   onReset: () => void;
   onLogout: () => void;
@@ -17,7 +19,7 @@ const TABS: Array<{ id: Tab; label: string; icon: Parameters<typeof Icon>[0]['na
   { id: 'dashboard', label: 'Synthèse', icon: 'chart' },
 ];
 
-export function Header({ tab, onTab, conflictCount, onReset, onLogout }: HeaderProps) {
+export function Header({ tab, onTab, theme, onThemeChange, conflictCount, onReset, onLogout }: HeaderProps) {
   return (
     <header className="topbar no-print">
       <div className="brand">
@@ -47,6 +49,16 @@ export function Header({ tab, onTab, conflictCount, onReset, onLogout }: HeaderP
 
       <div className="topbar-actions">
         <span className="proto-pill">Prototype</span>
+        <select
+          className="theme-select"
+          aria-label="Thème visuel"
+          value={theme}
+          onChange={(event) => onThemeChange(event.target.value as AppTheme)}
+        >
+          <option value="light">Clair</option>
+          <option value="dark">Sombre</option>
+          <option value="sage">Sauge</option>
+        </select>
         <button type="button" className="icon-btn" title="Réinitialiser la démonstration" onClick={onReset}>
           <Icon name="refresh" size={17} />
         </button>

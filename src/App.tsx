@@ -15,6 +15,7 @@ import type { Session } from './types';
 
 export type Tab = 'planning' | 'generation' | 'teachers' | 'rooms' | 'dashboard';
 export type ViewMode = 'group' | 'teacher' | 'room';
+export type AppTheme = 'light' | 'dark' | 'sage';
 
 export type EditTarget =
   | { mode: 'create'; day: number; slot: number }
@@ -27,9 +28,20 @@ interface Toast {
 }
 
 const AUTH_KEY = 'planifia.auth';
+const THEME_KEY = 'planifia.theme';
+
+function loadTheme(): AppTheme {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    return stored === 'dark' || stored === 'sage' ? stored : 'light';
+  } catch {
+    return 'light';
+  }
+}
 
 export function App() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(AUTH_KEY) === '1');
+  const [theme, setTheme] = useState<AppTheme>(loadTheme);
   const [tab, setTab] = useState<Tab>('planning');
   const [sessions, setSessions] = useState<Session[]>(() => loadSessions() ?? SEED_SESSIONS);
   const [view, setView] = useState<ViewMode>('group');
@@ -45,6 +57,14 @@ export function App() {
   useEffect(() => {
     saveSessions(sessions);
   }, [sessions]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // The selected theme still applies for this session when storage is unavailable.
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (!toast) return;
@@ -126,10 +146,12 @@ export function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-theme={theme}>
       <Header
         tab={tab}
         onTab={setTab}
+        theme={theme}
+        onThemeChange={setTheme}
         conflictCount={conflicts.length}
         onReset={handleReset}
         onLogout={handleLogout}
